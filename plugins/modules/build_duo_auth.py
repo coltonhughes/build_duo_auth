@@ -148,11 +148,13 @@ def run_module():
     path=path,
     params=params,
     token='',
-    date=''
+    date='',
+    urlencoded_params=''
   )
   try:
     result['token'] = buildHeaders(genDate(), method, api_host, path, params, secret, integration_key)['Authorization']
     result['date'] = buildHeaders(genDate(), method, api_host, path, params, secret, integration_key)['Date']
+    result['urlencoded_params'] = buildHeaders(genDate(), method, api_host, path, params, secret, integration_key)['url_encoded_params']
     result['changed'] = True
     module.exit_json(**result)
   except Exception as error:
@@ -176,7 +178,7 @@ def buildHeaders(date, method, host, path, params, secret, integration_key):
   auth = '{}:{}'.format(integration_key, signature.hexdigest())
   auth_bytes = auth.encode("utf-8")
 
-  return {'Date': date, 'Authorization': 'Basic {}'.format((base64.b64encode(auth_bytes)).decode("utf-8"))}
+  return {'Date': date, 'Authorization': 'Basic {}'.format((base64.b64encode(auth_bytes)).decode("utf-8")), "url_encoded_params": urlencoded_params}
 
 
 def main():
