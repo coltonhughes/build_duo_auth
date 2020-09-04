@@ -125,7 +125,6 @@ def run_module():
   module = AnsibleModule(
     argument_spec=module_args,
     supports_check_mode=False,
-    mutually_exclusive=[['params', 'body']]
   )
 
   if not HAS_LIB:
@@ -138,7 +137,10 @@ def run_module():
   path = module.params['path']
   params = module.params['params']
   
-  params = sorted(params.items())
+  if method.lower() == "delete":
+    pass
+  else:
+    params = sorted(params.items())
 
   result = dict(
     changed=False,
@@ -146,7 +148,6 @@ def run_module():
     api_host=api_host,
     method=method,
     path=path,
-    params=params,
     token='',
     date='',
     urlencoded_params=''
@@ -171,8 +172,14 @@ def genDate():
   return(date_rfc2822)
 
 def buildHeaders(date, method, host, path, params, secret, integration_key):
-  urlencoded_params = urllib.parse.urlencode(params)
-  msg = '{}\n{}\n{}\n{}\n{}'.format(date, method.upper(), host.lower(), path, urlencoded_params)
+
+  if method.lower() == "delete":
+    msg = '{}\n{}\n{}\n{}\n{}'.format(date, method.upper(), host.lower(), path, "\n")
+  else:
+    urlencoded_params = urllib.parse.urlencode(params)
+    msg = '{}\n{}\n{}\n{}\n{}'.format(date, method.upper(), host.lower(), path, urlencoded_params)
+  
+  
   signature = hmac.new(bytes(secret, 'latin-1'), msg=bytes(msg, 'latin-1'), digestmod=hashlib.sha1)
 
   auth = '{}:{}'.format(integration_key, signature.hexdigest())
