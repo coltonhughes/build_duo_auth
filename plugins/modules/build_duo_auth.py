@@ -174,7 +174,8 @@ def genDate():
 def buildHeaders(date, method, host, path, params, secret, integration_key):
 
   if method.lower() == "delete":
-    msg = '{}\n{}\n{}\n{}\n{}'.format(date, method.upper(), host.lower(), path, "\n")
+    msg = '{}\n{}\n{}\n{}\n'.format(date, method.upper(), host.lower(), path)
+    
   else:
     urlencoded_params = urllib.parse.urlencode(params)
     msg = '{}\n{}\n{}\n{}\n{}'.format(date, method.upper(), host.lower(), path, urlencoded_params)
@@ -184,8 +185,10 @@ def buildHeaders(date, method, host, path, params, secret, integration_key):
 
   auth = '{}:{}'.format(integration_key, signature.hexdigest())
   auth_bytes = auth.encode("utf-8")
-
-  return {'Date': date, 'Authorization': 'Basic {}'.format((base64.b64encode(auth_bytes)).decode("utf-8")), "url_encoded_params": urlencoded_params}
+  if method.lower() == "delete":
+    return {'Date': date, 'Authorization': 'Basic {}'.format((base64.b64encode(auth_bytes)).decode("utf-8")), "url_encoded_params": None}
+  else:
+    return {'Date': date, 'Authorization': 'Basic {}'.format((base64.b64encode(auth_bytes)).decode("utf-8")), "url_encoded_params": urlencoded_params}
 
 
 def main():
